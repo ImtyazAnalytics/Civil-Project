@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8; /* Light gray-blue for a pleasant look */
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 20px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+        form input, form select, form button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 18px;
+            font-size: 16px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+        }
+        input[type="date"]::-webkit-inner-spin-button {
+            display: none;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            margin-right: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .site-heading {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #34495e;
+        }
+        .daily-summary, .material-summary {
+            margin-left: 20px;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Management</h1>
+        <div id="projectSelection">
+            <button onclick="addProject()">Add Project</button>
+            <button onclick="showProjects()">View Existing Projects</button>
+        </div>
+
+        <div id="projectList" class="hidden">
+            <h2>Projects</h2>
+            <ul id="projectNames"></ul>
+            <button onclick="goBackToSelection()">Back</button>
+        </div>
+
+        <div id="reportOptions" class="hidden">
+            <h2>Choose Report Type</h2>
+            <button onclick="showDailyWorkReport()">Daily Work Report</button>
+            <button onclick="showMaterialsReport()">Materials Report</button>
+            <button onclick="showServicesTransferReport()">Services Transfer Report</button>
+            <button onclick="goBackToProjects()">Back</button>
+        </div>
+
+        <div id="dailyWorkReport" class="hidden">
+            <h2>Daily Work Report</h2>
+            <form id="dailyWorkForm">
+                <label for="workDate">Date (MM/DD/YY):</label>
+                <input type="date" id="workDate" required>
+
+                <label for="workType">Type of Work:</label>
+                <input type="text" id="workType" required>
+
+                <label for="crew">Crew:</label>
+                <select id="crew" required>
+                    <option value="Inhouse">Inhouse</option>
+                    <option value="Sub Contractor">Sub Contractor</option>
+                </select>
+
+                <label for="area">Area of Work:</label>
+                <input type="text" id="area" required>
+
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" required>
+
+                <label for="unit">Unit:</label>
+                <select id="unit" required>
+                    <option value="Lft">Lft</option>
+                    <option value="Ea">Ea</option>
+                    <option value="Sft">Sft</option>
+                    <option value="Cyd">Cyd</option>
+                    <option value="Tons">Tons</option>
+                </select>
+
+                <label for="inspector">Inspector Name:</label>
+                <input type="text" id="inspector" required>
+
+                <button type="button" onclick="addDailyWork()">Add</button>
+            </form>
+
+            <table id="dailyWorkTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date</th>
+                        <th>Type of Work</th>
+                        <th>Crew</th>
+                        <th>Area</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Inspector</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="downloadDailyWorkExcel()">Download Daily Work Report (Excel)</button>
+            <div id="dailyWorkDashboard">
+                <h3>Dashboard</h3>
+                <div id="dailyWorkSummary"></div>
+            </div>
+            <button onclick="goBackToReportOptions()">Back</button>
+        </div>
+
+        <div id="materialsReport" class="hidden">
+            <h2>Materials Report</h2>
+            <form id="materialsForm">
+                <label for="materialDate">Date (MM/DD/YY):</label>
+                <input type="date" id="materialDate" required>
+
+                <label for="material">Material:</label>
+                <input type="text" id="material" required>
+
+                <label for="materialQuantity">Quantity:</label>
+                <input type="number" id="materialQuantity" required>
+
+                <label for="materialUnit">Unit:</label>
+                <select id="materialUnit" required>
+                    <option value="Lft">Lft</option>
+                    <option value="Ea">Ea</option>
+                    <option value="Sft">Sft</option>
+                    <option value="Cyd">Cyd</option>
+                    <option value="Tons">Tons</option>
+                </select>
+
+                <label for="jobSite">Job Site:</label>
+                <input type="text" id="jobSite" required>
+
+                <label for="sentBy">Sent By:</label>
+                <input type="text" id="sentBy" required>
+
+                <button type="button" onclick="addMaterialReport()">Add</button>
+            </form>
+
+            <table id="materialsTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date</th>
+                        <th>Material</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Job Site</th>
+                        <th>Sent By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="downloadMaterialsExcel()">Download Materials Report (Excel)</button>
+            <div id="materialsDashboard">
+                <h3>Dashboard</h3>
+                <div id="materialsSummary"></div>
+            </div>
+            <button onclick="goBackToReportOptions()">Back</button>
+        </div>
+
+        <div id="servicesTransferReport" class="hidden">
+            <h2>Services Transfer Report</h2>
+            <form id="servicesTransferForm">
+                <label for="transferDate">Date (MM/DD/YY):</label>
+                <input type="date" id="transferDate" required>
+
+                <label for="transferArea">Area of Work:</label>
+                <input type="text" id="transferArea" required>
+
+                <label for="itemNo">Item No:</label>
+                <input type="text" id="itemNo" required>
+
+                <label for="transferType">Type of Work:</label>
+                <input type="text" id="transferType" required>
+
+                <label for="transferQuantity">Quantity:</label>
+                <input type="number" id="transferQuantity" required>
+
+                <label for="transferUnit">Unit:</label>
+                <select id="transferUnit" required>
+                    <option value="Lft">Lft</option>
+                    <option value="Ea">Ea</option>
+                    <option value="Sft">Sft</option>
+                    <option value="Cyd">Cyd</option>
+                    <option value="Tons">Tons</option>
+                </select>
+
+                <label for="transferPublic">Public:</label>
+                <input type="number" id="transferPublic" required>
+
+                <label for="transferPrivate">Private:</label>
+                <input type="number" id="transferPrivate" required>
+
+                <label for="transferComments">Comments:</label>
+                <input type="text" id="transferComments">
+
+                <button type="button" onclick="addServicesTransfer()">Add</button>
+            </form>
+
+            <table id="servicesTransferTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date</th>
+                        <th>Area of Work</th>
+                        <th>Item No</th>
+                        <th>Type of Work</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Public</th>
+                        <th>Private</th>
+                        <th>Total</th>
+                        <th>Comments</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="downloadServicesTransferExcel()">Download Services Transfer Report (Excel)</button>
+            <div id="servicesTransferDashboard">
+                <h3>Dashboard</h3>
+                <div id="servicesTransferSummary"></div>
+            </div>
+            <button onclick="goBackToReportOptions()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        const projects = [];
+
+        function addProject() {
+            const projectName = prompt('Enter Project Name:');
+            if (!projectName || projectName.trim() === '') {
+                alert('Project name cannot be empty.');
+                return;
+            }
+            projects.push(projectName.trim());
+            alert(`Project '${projectName}' Added Successfully!`);
+            showProjects();
+        }
+
+        function showProjects() {
+            const projectNames = document.getElementById('projectNames');
+            projectNames.innerHTML = '';
+
+            if (projects.length === 0) {
+                alert('No projects available. Please add a project.');
+                return;
+            }
+
+            projects.forEach((project, index) => {
+                const listItem = document.createElement('li');
+                const button = document.createElement('button');
+                button.textContent = project;
+                button.onclick = () => showReportOptions(index);
+                listItem.appendChild(button);
+                projectNames.appendChild(listItem);
+            });
+
+            document.getElementById('projectSelection').classList.add('hidden');
+            document.getElementById('projectList').classList.remove('hidden');
+        }
+
+        function showReportOptions(projectIndex) {
+            document.getElementById('projectList').classList.add('hidden');
+            document.getElementById('reportOptions').classList.remove('hidden');
+        }
+
+        function showDailyWorkReport() {
+            document.getElementById('reportOptions').classList.add('hidden');
+            document.getElementById('dailyWorkReport').classList.remove('hidden');
+        }
+
+        function showMaterialsReport() {
+            document.getElementById('reportOptions').classList.add('hidden');
+            document.getElementById('materialsReport').classList.remove('hidden');
+        }
+
+        function showServicesTransferReport() {
+            document.getElementById('reportOptions').classList.add('hidden');
+            document.getElementById('servicesTransferReport').classList.remove('hidden');
+        }
+
+        function goBackToSelection() {
+            document.getElementById('projectList').classList.add('hidden');
+            document.getElementById('projectSelection').classList.remove('hidden');
+        }
+
+        function goBackToProjects() {
+            document.getElementById('reportOptions').classList.add('hidden');
+            document.getElementById('projectList').classList.remove('hidden');
+        }
+
+        function goBackToReportOptions() {
+            document.getElementById('dailyWorkReport').classList.add('hidden');
+            document.getElementById('materialsReport').classList.add('hidden');
+            document.getElementById('servicesTransferReport').classList.add('hidden');
+            document.getElementById('reportOptions').classList.remove('hidden');
+        }
+
+        let dailyWorkSerial = 1;
+        let materialsSerial = 1;
+        let servicesTransferSerial = 1;
+
+        function addDailyWork() {
+            const table = document.getElementById('dailyWorkTable').querySelector('tbody');
+            const row = table.insertRow();
+
+            const formattedDate = formatDate(document.getElementById('workDate').value);
+
+            row.innerHTML = `
+                <td>${dailyWorkSerial++}</td>
+                <td>${formattedDate}</td>
+                <td>${document.getElementById('workType').value}</td>
+                <td>${document.getElementById('crew').value}</td>
+                <td>${document.getElementById('area').value}</td>
+                <td>${document.getElementById('quantity').value}</td>
+                <td>${document.getElementById('unit').value}</td>
+                <td>${document.getElementById('inspector').value}</td>
+                <td><button onclick="editRow(this)">Edit</button> <button onclick="deleteRow(this)">Delete</button></td>
+            `;
+            updateDailyWorkDashboard();
+            document.getElementById('dailyWorkForm').reset();
+        }
+
+        function addMaterialReport() {
+            const table = document.getElementById('materialsTable').querySelector('tbody');
+            const row = table.insertRow();
+
+            const formattedDate = formatDate(document.getElementById('materialDate').value);
+
+            row.innerHTML = `
+                <td>${materialsSerial++}</td>
+                <td>${formattedDate}</td>
+                <td>${document.getElementById('material').value}</td>
+                <td>${document.getElementById('materialQuantity').value}</td>
+                <td>${document.getElementById('materialUnit').value}</td>
+                <td>${document.getElementById('jobSite').value}</td>
+                <td>${document.getElementById('sentBy').value}</td>
+                <td><button onclick="editRow(this)">Edit</button> <button onclick="deleteRow(this)">Delete</button></td>
+            `;
+            updateMaterialsDashboard();
+            document.getElementById('materialsForm').reset();
+        }
+
+        function addServicesTransfer() {
+            const table = document.getElementById('servicesTransferTable').querySelector('tbody');
+            const row = table.insertRow();
+
+            const formattedDate = formatDate(document.getElementById('transferDate').value);
+            const quantity = parseFloat(document.getElementById('transferQuantity').value);
+            const publicValue = parseFloat(document.getElementById('transferPublic').value);
+            const privateValue = parseFloat(document.getElementById('transferPrivate').value);
+            const totalValue = publicValue + privateValue;
+
+            row.innerHTML = `
+                <td>${servicesTransferSerial++}</td>
+                <td>${formattedDate}</td>
+                <td>${document.getElementById('transferArea').value}</td>
+                <td>${document.getElementById('itemNo').value}</td>
+                <td>${document.getElementById('transferType').value}</td>
+                <td>${quantity}</td>
+                <td
+<td>${document.getElementById('transferUnit').value}</td>
+                <td>${publicValue}</td>
+                <td>${privateValue}</td>
+                <td>${totalValue}</td>
+                <td>${document.getElementById('transferComments').value}</td>
+                <td><button onclick="editRow(this)">Edit</button> <button onclick="deleteRow(this)">Delete</button></td>
+            `;
+            updateServicesTransferDashboard();
+            document.getElementById('servicesTransferForm').reset();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const year = date.getFullYear().toString().slice(-2);
+            return `${month}/${day}/${year}`;
+        }
+
+        function editRow(button) {
+            const row = button.parentElement.parentElement;
+            const cells = row.querySelectorAll('td');
+            for (let i = 1; i < cells.length - 1; i++) {
+                const currentValue = cells[i].textContent;
+                cells[i].innerHTML = `<input type='text' value='${currentValue}'>`;
+            }
+            button.textContent = 'Save';
+            button.onclick = () => saveRow(button);
+        }
+
+        function saveRow(button) {
+            const row = button.parentElement.parentElement;
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach((input, index) => {
+                row.cells[index + 1].textContent = input.value;
+            });
+            button.textContent = 'Edit';
+            button.onclick = () => editRow(button);
+        }
+
+        function deleteRow(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+            updateDailyWorkDashboard();
+            updateMaterialsDashboard();
+            updateServicesTransferDashboard();
+        }
+
+        function updateDailyWorkDashboard() {
+            const table = document.getElementById('dailyWorkTable').querySelector('tbody');
+            const rows = table.querySelectorAll('tr');
+            const summary = {};
+
+            rows.forEach(row => {
+                const area = row.cells[4].textContent;
+                const workType = row.cells[2].textContent;
+                const quantity = parseFloat(row.cells[5].textContent);
+                const unit = row.cells[6].textContent;
+                if (!summary[area]) {
+                    summary[area] = {};
+                }
+                if (!summary[area][workType]) {
+                    summary[area][workType] = { total: 0, unit };
+                }
+                summary[area][workType].total += quantity;
+            });
+
+            const summaryDiv = document.getElementById('dailyWorkSummary');
+            summaryDiv.innerHTML = '';
+            for (const [area, workTypes] of Object.entries(summary)) {
+                const areaHeading = document.createElement('h4');
+                areaHeading.className = 'site-heading';
+                areaHeading.textContent = area;
+                summaryDiv.appendChild(areaHeading);
+
+                const workTypeList = document.createElement('ul');
+                workTypeList.className = 'daily-summary';
+                for (const [workType, details] of Object.entries(workTypes)) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Type: ${workType}, Total Quantity: ${details.total}, Unit: ${details.unit}`;
+                    workTypeList.appendChild(listItem);
+                }
+                summaryDiv.appendChild(workTypeList);
+            }
+        }
+
+        function updateMaterialsDashboard() {
+            const table = document.getElementById('materialsTable').querySelector('tbody');
+            const rows = table.querySelectorAll('tr');
+            const summary = {};
+
+            rows.forEach(row => {
+                const jobSite = row.cells[5].textContent;
+                const material = row.cells[2].textContent;
+                const quantity = parseFloat(row.cells[3].textContent);
+                const unit = row.cells[4].textContent;
+                if (!summary[jobSite]) {
+                    summary[jobSite] = {};
+                }
+                if (!summary[jobSite][material]) {
+                    summary[jobSite][material] = { total: 0, unit };
+                }
+                summary[jobSite][material].total += quantity;
+            });
+
+            const summaryDiv = document.getElementById('materialsSummary');
+            summaryDiv.innerHTML = '';
+            for (const [jobSite, materials] of Object.entries(summary)) {
+                const siteHeading = document.createElement('h4');
+                siteHeading.className = 'site-heading';
+                siteHeading.textContent = jobSite;
+                summaryDiv.appendChild(siteHeading);
+
+                const materialList = document.createElement('ul');
+                materialList.className = 'material-summary';
+                for (const [material, details] of Object.entries(materials)) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Type: ${material}, Total Quantity: ${details.total}, Unit: ${details.unit}`;
+                    materialList.appendChild(listItem);
+                }
+                summaryDiv.appendChild(materialList);
+            }
+        }
+
+        function updateServicesTransferDashboard() {
+            const table = document.getElementById('servicesTransferTable').querySelector('tbody');
+            const rows = table.querySelectorAll('tr');
+            const summary = {};
+
+            rows.forEach(row => {
+                const area = row.cells[2].textContent;
+                const typeOfWork = row.cells[4].textContent;
+                const quantity = parseFloat(row.cells[5].textContent);
+                const unit = row.cells[6].textContent;
+                if (!summary[area]) {
+                    summary[area] = {};
+                }
+                if (!summary[area][typeOfWork]) {
+                    summary[area][typeOfWork] = { total: 0, unit };
+                }
+                summary[area][typeOfWork].total += quantity;
+            });
+
+            const summaryDiv = document.getElementById('servicesTransferSummary');
+            summaryDiv.innerHTML = '';
+            for (const [area, workTypes] of Object.entries(summary)) {
+                const areaHeading = document.createElement('h4');
+                areaHeading.className = 'site-heading';
+                areaHeading.textContent = area;
+                summaryDiv.appendChild(areaHeading);
+
+                const workTypeList = document.createElement('ul');
+                workTypeList.className = 'daily-summary';
+                for (const [typeOfWork, details] of Object.entries(workTypes)) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Type: ${typeOfWork}, Total Quantity: ${details.total}, Unit: ${details.unit}`;
+                    workTypeList.appendChild(listItem);
+                }
+                summaryDiv.appendChild(workTypeList);
+            }
+        }
+
+        function downloadDailyWorkExcel() {
+            const table = document.getElementById('dailyWorkTable');
+            downloadTableAsExcel(table, 'Daily_Work_Report');
+        }
+
+        function downloadMaterialsExcel() {
+            const table = document.getElementById('materialsTable');
+            downloadTableAsExcel(table, 'Materials_Report');
+        }
+
+        function downloadServicesTransferExcel() {
+            const table = document.getElementById('servicesTransferTable');
+            downloadTableAsExcel(table, 'Services_Transfer_Report');
+        }
+
+        function downloadTableAsExcel(table, filename) {
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const rowData = [];
+                const columns = row.querySelectorAll('th, td');
+                columns.forEach(column => {
+                    rowData.push(column.textContent);
+                });
+                csv.push(rowData.join(','));
+            });
+
+            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `${filename}.csv`;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+</body>
+</html>
